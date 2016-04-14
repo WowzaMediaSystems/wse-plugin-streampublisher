@@ -40,7 +40,3 @@ local.properties
 
 # STS (Spring Tool Suite)
 
-# ANT-specific
-build.xml
-
-#Project-specific
