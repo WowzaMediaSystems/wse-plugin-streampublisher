@@ -7,7 +7,7 @@ Wowza Streaming Engine 4.0.0 or later is required.
 ## Usage
 You can create a schedule with server listener and application module methods, either together or separately, depending on your needs.
 
-The **ServerListenerStreamPublisher** server listener loads a set of scheduled streams on a single application when the media server starts. This procedure keeps the streams running until the server is shut down. If you use this process, the schedule can't be reloaded by using just the server listener.
+You can use the **ServerListenerStreamPublisher** server listener to load a set of scheduled streams on a single application when the media server starts. This procedure keeps the streams running until the server is shut down. If you use this process, the schedule can't be reloaded by using just the server listener.
 
 You can use the **ModuleStreamPublisher** application module on any application to load a set of scheduled streams on that application when the application starts and unload the streams when the application is shut down. The schedule can be reloaded by modifying the SMIL file for the application and then reloading it. The module can provide the reload functionality to the schedule that's configured in the server listener. It can also be used on its own, in separate applications, to provide separate schedules for each application. Each application that runs a schedule must have a **live** stream type.
 
