@@ -13,7 +13,6 @@ import com.wowza.wms.logging.WMSLogger;
 import com.wowza.wms.logging.WMSLoggerFactory;
 import com.wowza.wms.logging.WMSLoggerIDs;
 import com.wowza.wms.module.*;
-import com.wowza.wms.plugin.collection.serverlistener.ServerListenerStreamPublisher;
 import com.wowza.wms.request.*;
 import com.wowza.wms.server.Server;
 import com.wowza.wms.stream.publish.Stream;
