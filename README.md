@@ -22,7 +22,7 @@ Wowza Media Systems™ provides developers with a platform to create streaming a
 
 To use the compiled version of this module, see [How to schedule streaming with Wowza Streaming Engine (StreamPublisher)](https://www.wowza.com/forums/content.php?145-How-to-schedule-streaming-with-Wowza-Streaming-Engine-%28StreamPublisher%29).
 
-For instructions on using the **ModuleLoopUntilLive** application module, see [How to loop a pre-roll until a live stream starts (ModuleLoopUntilLive)](https://www.wowza.com/forums/content.php?468-How-to-loop-a-pre-roll-until-a-live-stream-starts-%28ModuleLoopUntilLive%29).
+For instructions on using the **ModuleLoopUntilLive** application module, see [How to loop a pre-roll until a live stream starts (LoopUntilLive)](https://www.wowza.com/forums/content.php?468-How-to-loop-a-pre-roll-until-a-live-stream-starts-%28ModuleLoopUntilLive%29).
 
 ## Contact
 [Wowza Media Systems, LLC](https://www.wowza.com/contact)
