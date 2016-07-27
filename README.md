@@ -29,3 +29,5 @@ For instructions on using the **ModuleLoopUntilLive** application module, see [H
 
 ## License
 This code is distributed under the [Wowza Public License](https://github.com/WowzaMediaSystems/wse-plugin-streampublisher/blob/master/LICENSE.txt).
+
+![alt tag](http://wowzalogs.com/stats/githubimage.php?plugin=wse-plugin-streampublisher)
