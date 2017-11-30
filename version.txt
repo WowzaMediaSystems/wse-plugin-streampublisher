@@ -1,0 +1,10 @@
+Build 2
+	* Added the following properties to StreamPublisher to control the streams
+		* `streamPublisherTimeInMilliSeconds` - if set then the start and duration times are in milliseconds instead of seconds. Default false (seconds)
+		* `streamPublisherStartLiveOnPreviousKeyFrame` - if set, when switching to a live source, use teh most recent key frame as the start instead of waiting for the next one. Default false
+		* `streamPublisherStartOnPreviousBufferTime` - how far to look back in teh packet list for the previous key frame. default 4100 (milliseconds)
+		* `streamPublisherTimeOffsetBetweenItems` - specifies the millisecond gap between items (is currently overridden by an automatic check that use the larger of audio or video gap)
+		* `streamPublisherUpdateMetadataOnNewItem` - if set, the onMetadata packet `title` field will be updated withe the name of the new item when a switch occurs. Default true (enabled)
+
+Build 1
+	* Initial commit

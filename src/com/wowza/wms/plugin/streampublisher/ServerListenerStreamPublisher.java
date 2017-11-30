@@ -1,5 +1,5 @@
 /*
- * This code and all components (c) Copyright 2006 - 2016, Wowza Media Systems, LLC. All rights reserved.
+ * This code and all components (c) Copyright 2006 - 2017, Wowza Media Systems, LLC. All rights reserved.
  * This code is licensed pursuant to the Wowza Public License version 1.0, available at www.wowza.com/legal.
  */
 package com.wowza.wms.plugin.streampublisher;
@@ -24,6 +24,9 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.wowza.util.StringUtils;
+import com.wowza.wms.amf.AMFDataItem;
+import com.wowza.wms.amf.AMFDataList;
+import com.wowza.wms.amf.AMFDataMixedArray;
 import com.wowza.wms.application.IApplication;
 import com.wowza.wms.application.IApplicationInstance;
 import com.wowza.wms.application.IApplicationInstanceNotify;
@@ -139,10 +142,12 @@ public class ServerListenerStreamPublisher implements IServerNotify2
 	private class StreamListener implements IStreamActionNotify
 	{
 		private IApplicationInstance appInstance;
+		private boolean updateMetadata;
 
-		StreamListener(IApplicationInstance appInstance)
+		StreamListener(IApplicationInstance appInstance, boolean updateMetadata)
 		{
 			this.appInstance = appInstance;
+			this.updateMetadata = updateMetadata;
 		}
 
 		@Override
@@ -153,6 +158,24 @@ public class ServerListenerStreamPublisher implements IServerNotify2
 				String name = item.getName();
 				if (appInstance.getProperties().getPropertyBoolean(PROP_NAME_PREFIX + "SendBroadcast", true))
 					appInstance.broadcastMsg("PlaylistItemStart", name);
+				if(updateMetadata)
+				{
+					Publisher publisher = stream.getPublisher();
+					AMFDataList amfList = new AMFDataList();
+	
+					amfList.add(new AMFDataItem("@setDataFrame"));
+					amfList.add(new AMFDataItem("onMetaData"));
+	
+					AMFDataMixedArray metaData = new AMFDataMixedArray();
+					metaData.put("title", name);
+	
+					amfList.add(metaData);
+					
+					byte[] dataData = amfList.serialize();
+		            long timecode = Math.max(publisher.getStream().getAudioTC(), publisher.getStream().getVideoTC());
+					
+		            publisher.addDataData(dataData, timecode);
+				}
 				if (stream.isSwitchLog())
 					logger.info(CLASS_NAME + " PlayList Item Start: " + name);
 			}
@@ -212,7 +235,7 @@ public class ServerListenerStreamPublisher implements IServerNotify2
 	@Override
 	public void onServerInit(IServer server)
 	{
-		logger.info(CLASS_NAME + " Started.");
+		logger.info(CLASS_NAME + " Started. build #2");
 		IVHost vhost = null;
 		IApplication application = null;
 		IApplicationInstance appInstance = null;
@@ -314,6 +337,17 @@ public class ServerListenerStreamPublisher implements IServerNotify2
 			// see if a schedule file is specified in the target application
 			String scheduleSmil = serverProps.getPropertyStr(PROP_NAME_PREFIX + "SmilFile", "streamschedule.smil");
 			scheduleSmil = props.getPropertyStr(PROP_NAME_PREFIX + "SmilFile", scheduleSmil);
+			boolean timesInMilliseconds = serverProps.getPropertyBoolean(PROP_NAME_PREFIX + "TimesInMilliSeconds", false);
+			timesInMilliseconds = props.getPropertyBoolean(PROP_NAME_PREFIX + "StartLiveOnPreviousKeyFrame", timesInMilliseconds);
+			boolean startLiveOnPreviousKeyFrame = serverProps.getPropertyBoolean(PROP_NAME_PREFIX + "TimesInMilliSeconds", false);
+			startLiveOnPreviousKeyFrame = props.getPropertyBoolean(PROP_NAME_PREFIX + "StartLiveOnPreviousKeyFrame", startLiveOnPreviousKeyFrame);
+			long startLiveOnPreviousBufferTime = serverProps.getPropertyLong(PROP_NAME_PREFIX + "StartLiveOnPreviousBufferTime", 4100l);
+			startLiveOnPreviousBufferTime = props.getPropertyLong(PROP_NAME_PREFIX + "StartLiveOnPreviousBufferTime", startLiveOnPreviousBufferTime);
+			int timeOffsetBetweenItems = serverProps.getPropertyInt(PROP_NAME_PREFIX + "TimeOffsetBetweenItems", 0);
+			timeOffsetBetweenItems = props.getPropertyInt(PROP_NAME_PREFIX + "TimeOffsetBetweenItems", timeOffsetBetweenItems);
+			boolean updateMetadata = serverProps.getPropertyBoolean("streamPublisherUpdateMetadataOnNewItem", true);
+			updateMetadata = props.getPropertyBoolean("streamPublisherUpdateMetadataOnNewItem", updateMetadata);
+			
 			String storageDir = appInstance.getStreamStorageDir();
 			try
 			{
@@ -379,7 +413,7 @@ public class ServerListenerStreamPublisher implements IServerNotify2
 							IStreamActionNotify actionNotify = (IStreamActionNotify)props.get(PROP_NAME_PREFIX + "StreamListener");
 							if (actionNotify == null)
 							{
-								actionNotify = new StreamListener(appInstance);
+								actionNotify = new StreamListener(appInstance, updateMetadata);
 								props.setProperty(PROP_NAME_PREFIX + "StreamListener", actionNotify);
 							}
 							stream.addListener(actionNotify);
@@ -477,6 +511,10 @@ public class ServerListenerStreamPublisher implements IServerNotify2
 							}
 							stream.setSendOnMetadata(passMetaData);
 							stream.setSwitchLog(switchLog);
+							stream.setTimesInMilliseconds(timesInMilliseconds);
+							stream.setStartLiveOnPreviousKeyFrame(startLiveOnPreviousKeyFrame);
+							stream.setStartLiveOnPreviousBufferTime(startLiveOnPreviousBufferTime);
+							stream.setTimeOffsetBetweenItems(timeOffsetBetweenItems);
 							ScheduledItem schedule = new ScheduledItem(appInstance, startTime, playlist, stream);
 							schedules.add(schedule);
 							logger.info(CLASS_NAME + " Scheduled: " + stream.getName() + " for: " + scheduled);
