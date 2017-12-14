@@ -1,3 +1,6 @@
+Build 3
+	* Fixed problem in ModuleLoopUntilLive where unpublishing an rtp mediaCaster would cause the stream to switch to the playlist twice, causing an NPE on the second switch
+	
 Build 2
 	* Added the following properties to StreamPublisher to control the streams
 		* `streamPublisherTimeInMilliSeconds` - if set then the start and duration times are in milliseconds instead of seconds. Default false (seconds)

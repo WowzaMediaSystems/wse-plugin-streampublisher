@@ -235,7 +235,7 @@ public class ServerListenerStreamPublisher implements IServerNotify2
 	@Override
 	public void onServerInit(IServer server)
 	{
-		logger.info(CLASS_NAME + " Started. build #2");
+		logger.info(CLASS_NAME + " Started. build #3");
 		IVHost vhost = null;
 		IApplication application = null;
 		IApplicationInstance appInstance = null;

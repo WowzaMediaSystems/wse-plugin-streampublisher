@@ -168,7 +168,7 @@ public class ModuleLoopUntilLive extends ModuleBase
 		logger = WMSLoggerFactory.getLoggerObj(appInstance);
 		
 		init(appInstance);
-		logger.info(MODULE_NAME + ".onAppStart: ["+appInstance.getContextStr()+"]: Build #2", WMSLoggerIDs.CAT_application, WMSLoggerIDs.EVT_comment);
+		logger.info(MODULE_NAME + ".onAppStart: ["+appInstance.getContextStr()+"]: Build #3", WMSLoggerIDs.CAT_application, WMSLoggerIDs.EVT_comment);
 	}
 	
 	public void init(IApplicationInstance appInstance)
@@ -219,7 +219,8 @@ public class ModuleLoopUntilLive extends ModuleBase
 						synchronized(lock)
 						{
 							List<PlaylistItem> playlist = stream.getPlaylist();
-							int currentItemIndex = stream.getCurrentItem().getIndex();
+							PlaylistItem currentItem = stream.getCurrentItem();
+							int currentItemIndex = currentItem != null ? currentItem.getIndex() : 0;
 							playlists.put(outName, playlist);
 							playlistIndexes.put(outName, currentItemIndex);
 							stream.play(liveName, -2, -1, true);
@@ -252,26 +253,29 @@ public class ModuleLoopUntilLive extends ModuleBase
 						synchronized(lock)
 						{
 							List<PlaylistItem> playlist = playlists.remove(outName);
-							int currentItemIndex = playlistIndexes.remove(outName);
-							if (reloadEntirePlaylist)
+							Integer currentItemIndex = playlistIndexes.remove(outName);
+							if(playlist != null)
 							{
-								boolean reset = true;
-								for (PlaylistItem item : playlist)
+								if (reloadEntirePlaylist)
 								{
-									stream.play(item.getName(), item.getStart(), item.getLength(), reset);
-									reset = false;
+									boolean reset = true;
+									for (PlaylistItem item : playlist)
+									{
+										stream.play(item.getName(), item.getStart(), item.getLength(), reset);
+										reset = false;
+									}
+									stream.play(currentItemIndex + 1);
 								}
-								stream.play(currentItemIndex + 1);
-							}
-							else
-							{
-								if (playlist.size() > currentItemIndex)
+								else
 								{
-									PlaylistItem item = playlist.get(currentItemIndex);
-									stream.play(item.getName(), item.getStart(), item.getLength(), true);
+									if (playlist.size() > currentItemIndex)
+									{
+										PlaylistItem item = playlist.get(currentItemIndex);
+										stream.play(item.getName(), item.getStart(), item.getLength(), true);
+									}
 								}
+								logger.info(MODULE_NAME + ".swapToPlaylist [" + stream.getName() + "]", WMSLoggerIDs.CAT_application, WMSLoggerIDs.EVT_comment);
 							}
-							logger.info(MODULE_NAME + ".swapToPlaylist [" + stream.getName() + "]", WMSLoggerIDs.CAT_application, WMSLoggerIDs.EVT_comment);
 						}
 					}
 				}

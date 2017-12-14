@@ -50,7 +50,7 @@ public class ModuleStreamPublisher extends ModuleBase
 	{
 		this.appInstance = appInstance;
 		this.logger = WMSLoggerFactory.getLoggerObj(appInstance);
-		logger.info(MODULE_NAME + ".onAppStart: ["+appInstance.getContextStr()+"]: Build #2", WMSLoggerIDs.CAT_application, WMSLoggerIDs.EVT_comment);
+		logger.info(MODULE_NAME + ".onAppStart: ["+appInstance.getContextStr()+"]: Build #3", WMSLoggerIDs.CAT_application, WMSLoggerIDs.EVT_comment);
 		
 		streamPublisher = (ServerListenerStreamPublisher)Server.getInstance().getProperties().get(ServerListenerStreamPublisher.PROP_STREAMPUBLISHER);
 		if(streamPublisher == null)
