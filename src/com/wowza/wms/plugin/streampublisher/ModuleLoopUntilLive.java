@@ -168,7 +168,7 @@ public class ModuleLoopUntilLive extends ModuleBase
 		logger = WMSLoggerFactory.getLoggerObj(appInstance);
 		
 		init(appInstance);
-		logger.info(MODULE_NAME + ".onAppStart: ["+appInstance.getContextStr()+"]: Build #3", WMSLoggerIDs.CAT_application, WMSLoggerIDs.EVT_comment);
+		logger.info(MODULE_NAME + ".onAppStart: ["+appInstance.getContextStr()+"]: Build #4", WMSLoggerIDs.CAT_application, WMSLoggerIDs.EVT_comment);
 	}
 	
 	public void init(IApplicationInstance appInstance)
@@ -218,13 +218,16 @@ public class ModuleLoopUntilLive extends ModuleBase
 					{
 						synchronized(lock)
 						{
-							List<PlaylistItem> playlist = stream.getPlaylist();
-							PlaylistItem currentItem = stream.getCurrentItem();
-							int currentItemIndex = currentItem != null ? currentItem.getIndex() : 0;
-							playlists.put(outName, playlist);
-							playlistIndexes.put(outName, currentItemIndex);
-							stream.play(liveName, -2, -1, true);
-							logger.info(MODULE_NAME + ".swapToLive [" + stream.getName() + "]", WMSLoggerIDs.CAT_application, WMSLoggerIDs.EVT_comment);
+							if(!playlists.containsKey(outName))
+							{
+								List<PlaylistItem> playlist = stream.getPlaylist();
+								PlaylistItem currentItem = stream.getCurrentItem();
+								int currentItemIndex = currentItem != null ? currentItem.getIndex() : 0;
+								playlists.put(outName, playlist);
+								playlistIndexes.put(outName, currentItemIndex);
+								stream.play(liveName, -2, -1, true);
+								logger.info(MODULE_NAME + ".swapToLive [" + stream.getName() + "]", WMSLoggerIDs.CAT_application, WMSLoggerIDs.EVT_comment);
+							}
 						}
 					}
 				}

@@ -1,3 +1,6 @@
+Build 4
+	* Fixed a similar problem with publishing an rtp mediaCaster where switching to the live stream twice would cause the stored playlist to be overwritten
+
 Build 3
 	* Fixed problem in ModuleLoopUntilLive where unpublishing an rtp mediaCaster would cause the stream to switch to the playlist twice, causing an NPE on the second switch
 	
