@@ -235,7 +235,7 @@ public class ServerListenerStreamPublisher implements IServerNotify2
 	@Override
 	public void onServerInit(IServer server)
 	{
-		logger.info(CLASS_NAME + " Started. build #4");
+		logger.info(CLASS_NAME + " Started. build #5");
 		IVHost vhost = null;
 		IApplication application = null;
 		IApplicationInstance appInstance = null;
@@ -338,15 +338,15 @@ public class ServerListenerStreamPublisher implements IServerNotify2
 			String scheduleSmil = serverProps.getPropertyStr(PROP_NAME_PREFIX + "SmilFile", "streamschedule.smil");
 			scheduleSmil = props.getPropertyStr(PROP_NAME_PREFIX + "SmilFile", scheduleSmil);
 			boolean timesInMilliseconds = serverProps.getPropertyBoolean(PROP_NAME_PREFIX + "TimesInMilliSeconds", false);
-			timesInMilliseconds = props.getPropertyBoolean(PROP_NAME_PREFIX + "StartLiveOnPreviousKeyFrame", timesInMilliseconds);
-			boolean startLiveOnPreviousKeyFrame = serverProps.getPropertyBoolean(PROP_NAME_PREFIX + "TimesInMilliSeconds", false);
+			timesInMilliseconds = props.getPropertyBoolean(PROP_NAME_PREFIX + "TimesInMilliSeconds", timesInMilliseconds);
+			boolean startLiveOnPreviousKeyFrame = serverProps.getPropertyBoolean(PROP_NAME_PREFIX + "StartLiveOnPreviousKeyFrame", true);
 			startLiveOnPreviousKeyFrame = props.getPropertyBoolean(PROP_NAME_PREFIX + "StartLiveOnPreviousKeyFrame", startLiveOnPreviousKeyFrame);
 			long startLiveOnPreviousBufferTime = serverProps.getPropertyLong(PROP_NAME_PREFIX + "StartLiveOnPreviousBufferTime", 4100l);
 			startLiveOnPreviousBufferTime = props.getPropertyLong(PROP_NAME_PREFIX + "StartLiveOnPreviousBufferTime", startLiveOnPreviousBufferTime);
 			int timeOffsetBetweenItems = serverProps.getPropertyInt(PROP_NAME_PREFIX + "TimeOffsetBetweenItems", 0);
 			timeOffsetBetweenItems = props.getPropertyInt(PROP_NAME_PREFIX + "TimeOffsetBetweenItems", timeOffsetBetweenItems);
-			boolean updateMetadata = serverProps.getPropertyBoolean("streamPublisherUpdateMetadataOnNewItem", true);
-			updateMetadata = props.getPropertyBoolean("streamPublisherUpdateMetadataOnNewItem", updateMetadata);
+			boolean updateMetadata = serverProps.getPropertyBoolean(PROP_NAME_PREFIX + "UpdateMetadataOnNewItem", true);
+			updateMetadata = props.getPropertyBoolean(PROP_NAME_PREFIX + "UpdateMetadataOnNewItem", updateMetadata);
 			
 			String storageDir = appInstance.getStreamStorageDir();
 			try

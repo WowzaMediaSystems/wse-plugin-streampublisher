@@ -1,3 +1,11 @@
+Build 5
+	* Added the following properties to check if the live stream is ready before switching to live
+		* `loopUntilLiveWaitForLiveTimeout` - How long to wait for the stream to be ready. default 10000ms
+		* `loopUntilLiveWaitForLiveAudio` - wait for the live stream to have at least one audio packet available. default: true (disable for video only)
+		* `loopUntilLiveWaitForLiveVideo` - wait for the live stream to have at least one video packet available. default: true (disable for audio only)
+	* If both are set to true then the a further check is made to make sure the audio is within 50ms of the latest video key frame
+	* Changed default for `streamPublisherStartLiveOnPreviousKeyFrame` to true
+
 Build 4
 	* Fixed a similar problem with publishing an rtp mediaCaster where switching to the live stream twice would cause the stored playlist to be overwritten
 
@@ -7,10 +15,10 @@ Build 3
 Build 2
 	* Added the following properties to StreamPublisher to control the streams
 		* `streamPublisherTimeInMilliSeconds` - if set then the start and duration times are in milliseconds instead of seconds. Default false (seconds)
-		* `streamPublisherStartLiveOnPreviousKeyFrame` - if set, when switching to a live source, use teh most recent key frame as the start instead of waiting for the next one. Default false
-		* `streamPublisherStartOnPreviousBufferTime` - how far to look back in teh packet list for the previous key frame. default 4100 (milliseconds)
+		* `streamPublisherStartLiveOnPreviousKeyFrame` - if set, when switching to a live source, use the most recent key frame as the start instead of waiting for the next one. Default false
+		* `streamPublisherStartOnPreviousBufferTime` - how far to look back in the packet list for the previous key frame. default 4100 (milliseconds)
 		* `streamPublisherTimeOffsetBetweenItems` - specifies the millisecond gap between items (is currently overridden by an automatic check that use the larger of audio or video gap)
-		* `streamPublisherUpdateMetadataOnNewItem` - if set, the onMetadata packet `title` field will be updated withe the name of the new item when a switch occurs. Default true (enabled)
+		* `streamPublisherUpdateMetadataOnNewItem` - if set, the onMetadata packet `title` field will be updated with the name of the new item when a switch occurs. Default true (enabled)
 
 Build 1
 	* Initial commit

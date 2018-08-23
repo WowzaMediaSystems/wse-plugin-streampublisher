@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.wowza.wms.amf.AMFPacket;
 import com.wowza.wms.application.IApplicationInstance;
 import com.wowza.wms.logging.WMSLogger;
 import com.wowza.wms.logging.WMSLoggerFactory;
@@ -26,7 +27,7 @@ public class ModuleLoopUntilLive extends ModuleBase
 	
 	private class StreamListener implements IMediaStreamActionNotify
 	{
-		public void onPublish(IMediaStream stream, String streamName, boolean isRecord, boolean isAppend)
+		public void onPublish(IMediaStream stream, final String streamName, boolean isRecord, boolean isAppend)
 		{
 			String[] names = liveStreamNames.split(",");
 			for(String name : names)
@@ -39,7 +40,15 @@ public class ModuleLoopUntilLive extends ModuleBase
 						return;
 					}
 					logger.info(MODULE_NAME + ".StreamListener.onPublish Swapping to live [" + streamName +"]", WMSLoggerIDs.CAT_application, WMSLoggerIDs.EVT_comment);
-					swapToLive(streamName);
+					appInstance.getVHost().getHandlerThreadPool().execute(new Runnable()
+					{
+
+						@Override
+						public void run()
+						{
+							swapToLive(streamName);
+						}
+					});
 					break;
 				}
 			}
@@ -118,14 +127,22 @@ public class ModuleLoopUntilLive extends ModuleBase
 
 		public void onStreamStart(IMediaCaster mediaCaster)
 		{
-			String streamName = mediaCaster.getStream().getName();
+			final String streamName = mediaCaster.getStream().getName();
 			String[] names = liveStreamNames.split(",");
 			for(String name : names)
 			{
 				if (name.trim().equalsIgnoreCase(streamName))
 				{
 					logger.info(MODULE_NAME + ".MediaCasterListener.onStreamStop Swapping to live [" + streamName +"]", WMSLoggerIDs.CAT_application, WMSLoggerIDs.EVT_comment);
-					swapToLive(streamName);
+					appInstance.getVHost().getHandlerThreadPool().execute(new Runnable()
+					{
+
+						@Override
+						public void run()
+						{
+							swapToLive(streamName);
+						}
+					});
 					break;
 				}
 			}
@@ -145,7 +162,6 @@ public class ModuleLoopUntilLive extends ModuleBase
 				}
 			}
 		}
-		
 	}
 
 	public static String MODULE_NAME = "ModuleLoopUntilLive";
@@ -158,6 +174,9 @@ public class ModuleLoopUntilLive extends ModuleBase
 	private String outStreamNames = "Stream1";
 	private boolean reloadEntirePlaylist = true;
 	private boolean handleMediaCasters = true;
+	private boolean waitForLiveAudio = true;
+	private boolean waitForLiveVideo = true;
+	private long waitForLiveTimeout = 10000;
 	private Object lock = new Object();
 	private IMediaStreamActionNotify actionNotify = new StreamListener();
 
@@ -168,7 +187,7 @@ public class ModuleLoopUntilLive extends ModuleBase
 		logger = WMSLoggerFactory.getLoggerObj(appInstance);
 		
 		init(appInstance);
-		logger.info(MODULE_NAME + ".onAppStart: ["+appInstance.getContextStr()+"]: Build #4", WMSLoggerIDs.CAT_application, WMSLoggerIDs.EVT_comment);
+		logger.info(MODULE_NAME + ".onAppStart: ["+appInstance.getContextStr()+"]: Build #5", WMSLoggerIDs.CAT_application, WMSLoggerIDs.EVT_comment);
 	}
 	
 	public void init(IApplicationInstance appInstance)
@@ -185,6 +204,9 @@ public class ModuleLoopUntilLive extends ModuleBase
 		this.outStreamNames = appInstance.getProperties().getPropertyStr(PROP_NAME_PREFIX + "OutputStreams", outStreamNames);
 		this.reloadEntirePlaylist = appInstance.getProperties().getPropertyBoolean(PROP_NAME_PREFIX + "ReloadEntirePlaylist", reloadEntirePlaylist);
 		this.handleMediaCasters = appInstance.getProperties().getPropertyBoolean(PROP_NAME_PREFIX + "HandleMediaCasters", handleMediaCasters);
+		this.waitForLiveAudio = appInstance.getProperties().getPropertyBoolean(PROP_NAME_PREFIX + "WaitForLiveAudio", waitForLiveAudio);
+		this.waitForLiveVideo = appInstance.getProperties().getPropertyBoolean(PROP_NAME_PREFIX + "WaitForLiveVideo", waitForLiveVideo);
+		this.waitForLiveTimeout = appInstance.getProperties().getPropertyLong(PROP_NAME_PREFIX + "WaitForLiveTimeout", waitForLiveTimeout);
 	}
 
 	public void onStreamCreate(IMediaStream stream)
@@ -201,6 +223,56 @@ public class ModuleLoopUntilLive extends ModuleBase
 
 	private void swapToLive(String streamName)
 	{
+		long startTime = System.currentTimeMillis();
+		while (startTime + waitForLiveTimeout < System.currentTimeMillis())
+		{
+			IMediaStream liveStream = appInstance.getStreams().getStream(streamName);
+			if (liveStream != null)
+			{
+				boolean ready = false;
+				if(liveStream.isPublishStreamReady(waitForLiveAudio, waitForLiveVideo))
+				{
+					if(!waitForLiveAudio || !waitForLiveVideo)
+						break;
+					
+					AMFPacket lastKeyFrame = liveStream.getLastKeyFrame();
+					if(lastKeyFrame != null)
+					{
+						long lastKeyframeTC = lastKeyFrame.getAbsTimecode();
+						List<AMFPacket> packets = liveStream.getPlayPackets();
+						for(AMFPacket packet : packets)
+						{
+							if(packet.isAudio())
+							{
+								long audioTC = packet.getAbsTimecode();
+								if(Math.abs(lastKeyframeTC - audioTC) < 50)
+								{
+									ready = true;
+									break;
+								}
+							}
+						}
+					}
+				}
+				if(ready)
+				{
+					break;
+				}
+			}
+			
+			try
+			{
+				Thread.sleep(50);
+			}
+			catch (InterruptedException e)
+			{
+			}
+		}
+		
+		// check to see if the live stream is still published.
+		if(appInstance.getStreams().getStream(streamName) == null)
+			return;
+		
 		String[] liveNames = liveStreamNames.split(",");
 		String[] outNames = outStreamNames.split(",");
 		int idx = 0;
