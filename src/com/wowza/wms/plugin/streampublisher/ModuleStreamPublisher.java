@@ -50,7 +50,7 @@ public class ModuleStreamPublisher extends ModuleBase
 	{
 		this.appInstance = appInstance;
 		this.logger = WMSLoggerFactory.getLoggerObj(appInstance);
-		logger.info(MODULE_NAME + ".onAppStart: ["+appInstance.getContextStr()+"]: Build #4", WMSLoggerIDs.CAT_application, WMSLoggerIDs.EVT_comment);
+		logger.info(MODULE_NAME + ".onAppStart: ["+appInstance.getContextStr()+"]: Build #6", WMSLoggerIDs.CAT_application, WMSLoggerIDs.EVT_comment);
 		
 		streamPublisher = (ServerListenerStreamPublisher)Server.getInstance().getProperties().get(ServerListenerStreamPublisher.PROP_STREAMPUBLISHER);
 		if(streamPublisher == null)
@@ -60,8 +60,7 @@ public class ModuleStreamPublisher extends ModuleBase
 		}
 		try
 		{
-			String ret = loadSchedule();
-			appInstance.getProperties().setProperty(PROP_NAME_PREFIX + "ScheduleLoaded", true);
+			String ret = loadSchedule();			
 			logger.info(MODULE_NAME + ".onAppStart: ["+appInstance.getContextStr()+"]: "+ret, WMSLoggerIDs.CAT_application, WMSLoggerIDs.EVT_comment);
 		}
 		catch (Exception e)
@@ -92,6 +91,7 @@ public class ModuleStreamPublisher extends ModuleBase
 	/**
 	 * public unloadSchedule method.  Can be called from JMX.
 	 */
+	@SuppressWarnings("unchecked")
 	public void unloadSchedule()
 	{
 		Map<String, Stream> streams = (Map<String, Stream>)appInstance.getProperties().remove(PROP_NAME_PREFIX + "Streams");
@@ -103,6 +103,7 @@ public class ModuleStreamPublisher extends ModuleBase
 			}
 			streams.clear();
 		}
+		appInstance.getProperties().remove(PROP_NAME_PREFIX + "ScheduleLoaded");
 	}
 
 }

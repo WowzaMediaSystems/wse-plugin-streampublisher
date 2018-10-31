@@ -235,7 +235,7 @@ public class ServerListenerStreamPublisher implements IServerNotify2
 	@Override
 	public void onServerInit(IServer server)
 	{
-		logger.info(CLASS_NAME + " Started. build #5");
+		logger.info(CLASS_NAME + " Started. build #6");
 		IVHost vhost = null;
 		IApplication application = null;
 		IApplicationInstance appInstance = null;
@@ -313,6 +313,7 @@ public class ServerListenerStreamPublisher implements IServerNotify2
 			try
 			{
 				String ret = loadSchedule(appInstance);
+				appInstance.getProperties().setProperty(PROP_NAME_PREFIX + "ScheduleLoaded", true);
 				logger.info(CLASS_NAME + ": " + ret);
 			}
 			catch (Exception e)
@@ -321,6 +322,7 @@ public class ServerListenerStreamPublisher implements IServerNotify2
 			}
 	}
 
+	@SuppressWarnings("unchecked")
 	public String loadSchedule(IApplicationInstance appInstance) throws Exception
 	{
 		WMSProperties serverProps = Server.getInstance().getProperties();
@@ -533,10 +535,12 @@ public class ServerListenerStreamPublisher implements IServerNotify2
 			{
 				throw new Exception(CLASS_NAME + " Error from playlist manager is '" + ex.getMessage() + "'", ex);
 			}
+			appInstance.getProperties().setProperty(PROP_NAME_PREFIX + "ScheduleLoaded", true);
 			return "DONE!";
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	public void shutdownStream(IApplicationInstance appInstance, Stream stream)
 	{
 		if (stream == null)

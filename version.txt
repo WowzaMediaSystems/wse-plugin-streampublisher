@@ -1,3 +1,6 @@
+Build 6
+	* Added HttpProvider to load and unload schedules. This can be used in place of the flash app
+	
 Build 5
 	* Added the following properties to check if the live stream is ready before switching to live
 		* `loopUntilLiveWaitForLiveTimeout` - How long to wait for the stream to be ready. default 10000ms
