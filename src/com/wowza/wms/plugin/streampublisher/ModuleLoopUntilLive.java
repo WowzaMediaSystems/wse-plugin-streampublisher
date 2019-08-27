@@ -224,7 +224,7 @@ public class ModuleLoopUntilLive extends ModuleBase
 	private void swapToLive(String streamName)
 	{
 		long startTime = System.currentTimeMillis();
-		while (startTime + waitForLiveTimeout < System.currentTimeMillis())
+		while (startTime + waitForLiveTimeout > System.currentTimeMillis())
 		{
 			IMediaStream liveStream = appInstance.getStreams().getStream(streamName);
 			if (liveStream != null)
