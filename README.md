@@ -1,6 +1,8 @@
 # StreamPublisher
 The **StreamPublisher** module for [Wowza Streaming Engine™ media server software](https://www.wowza.com/products/streaming-engine) lets you use a server listener and application module to create a schedule of streams and playlists. Using television as an analogy, a stream is a channel and a playlist is a program with one or more video segments. A schedule can have as many streams (channels) as you want, with as many playlists (programs) as you want, and each playlist can be scheduled to play on a stream at a certain time. If a playlist is scheduled to start on a stream while another playlist is running, the existing playlist is replaced with the new one. If you set a schedule to begin in the past, the playlist plays immediately.
 
+This repo includes a [compiled version](/lib/wse-plugin-streampublisher.jar).
+
 ## Prerequisites
 Wowza Streaming Engine 4.0.0 or later is required.
 
@@ -43,15 +45,15 @@ curl http://localhost:8086/schedules?appName=live&action=unloadSchedule
 To use the included **ModuleLoopUntilLive** application module to loop pre-roll video around a live stream, at least one server-side stream must be configured on the Streaming Engine live application.
 
 ## More resources
+To use the compiled version of this module, see [Schedule streaming with a Wowza Streaming Engine Java module](https://www.wowza.com/docs/how-to-schedule-streaming-with-wowza-streaming-engine-streampublisher).
+
+For instructions on using the **ModuleLoopUntilLive** application module, see [Loop a pre-roll until a live stream starts with Wowza Streaming Engine Java module](https://www.wowza.com/docs/how-to-loop-a-pre-roll-until-a-live-stream-starts-loopuntillive).
+
 [Wowza Streaming Engine Server-Side API Reference](https://www.wowza.com/resources/serverapi/)
 
-[How to extend Wowza Streaming Engine using the Wowza IDE](https://www.wowza.com/forums/content.php?759-How-to-extend-Wowza-Streaming-Engine-using-the-Wowza-IDE)
+[How to extend Wowza Streaming Engine using the Wowza IDE](https://www.wowza.com/docs/how-to-extend-wowza-streaming-engine-using-the-wowza-ide)
 
-Wowza Media Systems™ provides developers with a platform to create streaming applications and solutions. See [Wowza Developer Tools](https://www.wowza.com/resources/developers) to learn more about our APIs and SDK.
-
-To use the compiled version of this module, see [How to schedule streaming with Wowza Streaming Engine (StreamPublisher)](https://www.wowza.com/forums/content.php?145-How-to-schedule-streaming-with-Wowza-Streaming-Engine-%28StreamPublisher%29).
-
-For instructions on using the **ModuleLoopUntilLive** application module, see [How to loop a pre-roll until a live stream starts (LoopUntilLive)](https://www.wowza.com/forums/content.php?468-How-to-loop-a-pre-roll-until-a-live-stream-starts-%28ModuleLoopUntilLive%29).
+Wowza Media Systems™ provides developers with a platform to create streaming applications and solutions. See [Wowza Developer Tools](https://www.wowza.com/developer) to learn more about our APIs and SDK.
 
 ## Contact
 [Wowza Media Systems, LLC](https://www.wowza.com/contact)
