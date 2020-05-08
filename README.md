@@ -13,34 +13,7 @@ You can use the **ServerListenerStreamPublisher** server listener to load a set 
 
 You can use the **ModuleStreamPublisher** application module on any application to load a set of scheduled streams on that application when the application starts and unload the streams when the application is shut down. The schedule can be reloaded by modifying the SMIL file for the application and then reloading it. The module can provide the reload functionality to the schedule that's configured in the server listener. It can also be used on its own, in separate applications, to provide separate schedules for each application. Each application that runs a schedule must have a **live** stream type.
 
-You can use the **HttpProviderStreamPublisherControl** HttpProvider to load and unload the schedules. To enable the HttpProvider, add the following to your Admin HostPort HttpProvider list.
-```
-<HTTPProvider>
-	<BaseClass>com.wowza.wms.plugin.streampublisher.HttpProviderStreamPublisherControl</BaseClass>
-	<RequestFilters>schedules*</RequestFilters>
-	<AuthenticationMethod>admin-digest</AuthenticationMethod>
-</HTTPProvider>
-```
-A request to the HttpProvider with no parameters will reload the schedule on the default application defined by the *streamPublisherApplication* server property. The following query parameters can be used.
-**appName** - The name of the application to load schedule on.
-**appInstName** - The name of the appInstance to load the schedule on.
-**action** - *loadSchedule*, *reloadSchedule* or *unloadSchedule*. 
-
-If the **action** is *reloadSchedule* or *loadSchedule*, and the appInstance is already running with a schedule then this will be reloaded otherwise the appInstance will be started with a new schedule, **only** if the **action** is *loadSchedule*.
-If the **action** is *unloadSchedule*, then the schedule will be unloaded and *loadSchedule* will be required to load it again later.
-
-Load a schedule
-```
-curl http://localhost:8086/schedules?appName=live&action=loadSchedule
-```
-Reload a running schedule
-```
-curl http://localhost:8086/schedules?appName=live&action=reloadSchedule
-```
-Unload a running schedule
-```
-curl http://localhost:8086/schedules?appName=live&action=unloadSchedule
-```
+You can use the **HttpProviderStreamPublisherControl** HttpProvider to load and unload the schedules.
 
 To use the included **ModuleLoopUntilLive** application module to loop pre-roll video around a live stream, at least one server-side stream must be configured on the Streaming Engine live application.
 
