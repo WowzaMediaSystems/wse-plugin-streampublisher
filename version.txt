@@ -1,3 +1,6 @@
+Build 7
+	* Load schedules via a separate thread to avoid a deadlock causing race condition if StartUpStreams is being used
+
 Build 6
 	* Added HttpProvider to load and unload schedules. This can be used in place of the flash app
 	
