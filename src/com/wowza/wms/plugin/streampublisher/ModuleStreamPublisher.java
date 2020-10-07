@@ -50,7 +50,7 @@ public class ModuleStreamPublisher extends ModuleBase
 	{
 		this.appInstance = appInstance;
 		this.logger = WMSLoggerFactory.getLoggerObj(appInstance);
-		logger.info(MODULE_NAME + ".onAppStart: ["+appInstance.getContextStr()+"]: Build #6", WMSLoggerIDs.CAT_application, WMSLoggerIDs.EVT_comment);
+		logger.info(MODULE_NAME + ".onAppStart: ["+appInstance.getContextStr()+"]: Build #7", WMSLoggerIDs.CAT_application, WMSLoggerIDs.EVT_comment);
 		
 		streamPublisher = (ServerListenerStreamPublisher)Server.getInstance().getProperties().get(ServerListenerStreamPublisher.PROP_STREAMPUBLISHER);
 		if(streamPublisher == null)
@@ -58,15 +58,23 @@ public class ModuleStreamPublisher extends ModuleBase
 			streamPublisher = new ServerListenerStreamPublisher();
 			Server.getInstance().getProperties().setProperty(ServerListenerStreamPublisher.PROP_STREAMPUBLISHER, streamPublisher);
 		}
-		try
-		{
-			String ret = loadSchedule();			
-			logger.info(MODULE_NAME + ".onAppStart: ["+appInstance.getContextStr()+"]: "+ret, WMSLoggerIDs.CAT_application, WMSLoggerIDs.EVT_comment);
-		}
-		catch (Exception e)
-		{
-			logger.error("ModuleStreamPublisher.onAppStart: ["+appInstance.getContextStr()+"]: " + e.getMessage(), e);
-		}
+		appInstance.getVHost().getThreadPool().execute(new Runnable() {
+
+			@Override
+			public void run()
+			{
+				try
+				{
+					String ret = loadSchedule();			
+					logger.info(MODULE_NAME + ".onAppStart: ["+appInstance.getContextStr()+"]: "+ret, WMSLoggerIDs.CAT_application, WMSLoggerIDs.EVT_comment);
+				}
+				catch (Exception e)
+				{
+					logger.error("ModuleStreamPublisher.onAppStart: ["+appInstance.getContextStr()+"]: " + e.getMessage(), e);
+				}
+			}
+			
+		});
 	}
 
 	/**

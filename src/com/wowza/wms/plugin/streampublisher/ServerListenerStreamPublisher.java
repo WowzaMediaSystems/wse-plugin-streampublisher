@@ -235,10 +235,9 @@ public class ServerListenerStreamPublisher implements IServerNotify2
 	@Override
 	public void onServerInit(IServer server)
 	{
-		logger.info(CLASS_NAME + " Started. build #6");
+		logger.info(CLASS_NAME + " Started. build #7");
 		IVHost vhost = null;
 		IApplication application = null;
-		IApplicationInstance appInstance = null;
 		String vhostName = server.getProperties().getPropertyStr("PublishToVHost", "_defaultVHost_"); // Old Prop Name
 		vhostName = server.getProperties().getPropertyStr(PROP_NAME_PREFIX + "VHost", vhostName); // New Prop Name
 		if (StringUtils.isEmpty(vhostName))
@@ -293,11 +292,38 @@ public class ServerListenerStreamPublisher implements IServerNotify2
 		}
 		try
 		{
-			appInstance = application.getAppInstance(appInstName);
+			IApplicationInstance appInstance = application.getAppInstance(appInstName);
 			if (appInstance == null)
 			{
 				logger.warn(CLASS_NAME + ": Failed to get Application Instance can not run.");
 				return;
+			}
+			
+			//  Module onAppStart runs as soon as getAppInstance() is called so check to see if the module loaded the schedule.
+			if (appInstance.getProperties().getPropertyBoolean(PROP_NAME_PREFIX + "ScheduleLoaded", false))
+			{
+				logger.info(CLASS_NAME + ": Schedule loaded by module.");
+			}
+			else
+			{
+				vhost.getThreadPool().execute(new Runnable() {
+
+					@Override
+					public void run()
+					{
+						String ret = null;
+						try
+						{
+							ret = loadSchedule(appInstance);
+						}
+						catch (Exception e)
+						{
+							logger.error(CLASS_NAME + ": " + e.getMessage(), e);
+						}
+						appInstance.getProperties().setProperty(PROP_NAME_PREFIX + "ScheduleLoaded", true);
+						logger.info(CLASS_NAME + ": " + ret);
+					}
+				});
 			}
 		}
 		catch (Exception e)
@@ -306,20 +332,6 @@ public class ServerListenerStreamPublisher implements IServerNotify2
 			return;
 		}
 
-		//  Module onAppStart runs as soon as getAppInstance() is called so check to see if the module loaded the schedule.
-		if (appInstance.getProperties().getPropertyBoolean(PROP_NAME_PREFIX + "ScheduleLoaded", false))
-			logger.info(CLASS_NAME + ": Schedule loaded by module.");
-		else
-			try
-			{
-				String ret = loadSchedule(appInstance);
-				appInstance.getProperties().setProperty(PROP_NAME_PREFIX + "ScheduleLoaded", true);
-				logger.info(CLASS_NAME + ": " + ret);
-			}
-			catch (Exception e)
-			{
-				logger.error(CLASS_NAME + ": " + e.getMessage(), e);
-			}
 	}
 
 	@SuppressWarnings("unchecked")
