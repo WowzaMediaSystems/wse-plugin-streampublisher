@@ -337,6 +337,7 @@ public class ServerListenerStreamPublisher implements IServerNotify2
 	@SuppressWarnings("unchecked")
 	public String loadSchedule(IApplicationInstance appInstance) throws Exception
 	{
+		Date now = new Date();
 		WMSProperties serverProps = Server.getInstance().getProperties();
 		WMSProperties props = appInstance.getProperties();
 		synchronized(lock)
@@ -523,6 +524,11 @@ public class ServerListenerStreamPublisher implements IServerNotify2
 								schedules = new ArrayList<ScheduledItem>();
 								schedulesMap.put(streamName, schedules);
 							}
+							// leave only the last past schedule
+							if (startTime.before(now)) {
+								schedules.removeIf(schedule -> schedule.start.before(now));
+							}
+
 							stream.setSendOnMetadata(passMetaData);
 							stream.setSwitchLog(switchLog);
 							stream.setTimesInMilliseconds(timesInMilliseconds);
