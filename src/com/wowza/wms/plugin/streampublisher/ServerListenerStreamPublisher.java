@@ -7,13 +7,13 @@ package com.wowza.wms.plugin.streampublisher;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.stream.Collectors;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -524,10 +524,6 @@ public class ServerListenerStreamPublisher implements IServerNotify2
 								schedules = new ArrayList<ScheduledItem>();
 								schedulesMap.put(streamName, schedules);
 							}
-							// leave only the last past schedule
-							if (startTime.before(now)) {
-								schedules.removeIf(schedule -> schedule.start.before(now));
-							}
 
 							stream.setSendOnMetadata(passMetaData);
 							stream.setSwitchLog(switchLog);
@@ -541,12 +537,22 @@ public class ServerListenerStreamPublisher implements IServerNotify2
 						}
 						
 					}
-					for(List<ScheduledItem> schedules : schedulesMap.values())
+					schedulesMap.replaceAll((streamName, schedules) ->
 					{
-						Collections.sort(schedules);
-						for(ScheduledItem schedule : schedules)
-							schedule.start();
-					}
+						// future schedules
+						List<ScheduledItem> filteredSchedules = schedules.stream()
+								.sorted()
+								.filter(s -> !s.start.before(now))
+								.collect(Collectors.toList());
+						// find last passed schedule and add it at the beginning of future schedules
+						schedules.stream()
+								.sorted()
+								.filter(s -> s.start.before(now))
+								.reduce((first, second) -> second)
+								.ifPresent(s -> filteredSchedules.add(0, s));
+						return filteredSchedules;
+					});
+					schedulesMap.forEach((streamName, schedules) -> schedules.forEach(ScheduledItem::start));
 				}
 			}
 			catch (Exception ex)
