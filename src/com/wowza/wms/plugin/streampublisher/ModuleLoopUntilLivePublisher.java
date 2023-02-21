@@ -24,7 +24,7 @@ public class ModuleLoopUntilLivePublisher extends ModuleBase
     {
         this.appInstance = appInstance;
         logger = WMSLoggerFactory.getLoggerObj(appInstance);
-        logger.info(MODULE_NAME + ".onAppStart: ["+appInstance.getContextStr()+"]: Build #8", WMSLoggerIDs.CAT_application, WMSLoggerIDs.EVT_comment);
+        logger.info(MODULE_NAME + ".onAppStart: ["+appInstance.getContextStr()+"]: Build #9", WMSLoggerIDs.CAT_application, WMSLoggerIDs.EVT_comment);
         outStreamNames = appInstance.getProperties().getPropertyStr("loopUntilLiveOutputStreams", outStreamNames);
         vodFileNames = appInstance.getProperties().getPropertyStr("loopUntilLiveVodFiles", vodFileNames);
         outStreamNamesList.addAll(Arrays.asList(outStreamNames.split(",")));

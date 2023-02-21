@@ -1,3 +1,6 @@
+Build 9
+    * Filter schedules so that only the latest past schedule is loaded.
+
 Build 8
     * Added ModuleLoopUntilLivePublisher that removes the dependency on the full Stream Publisher for LoopUntilLive workflows.  A property to set a single VOD file for each output stream is used instead of the streampublisher.smil file.
         * `loopUntilLiveVodFiles` - Comma separated list of VOD file names to use for each output stream. The output stream will use the vod file name that matches the position in the list of names.  If there are less vod file names listed, the output stream will use the last name in the list.

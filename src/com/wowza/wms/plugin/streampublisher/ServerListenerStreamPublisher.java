@@ -235,7 +235,7 @@ public class ServerListenerStreamPublisher implements IServerNotify2
 	@Override
 	public void onServerInit(IServer server)
 	{
-		logger.info(CLASS_NAME + " Started. build #7");
+		logger.info(CLASS_NAME + " Started. build #9");
 		IVHost vhost = null;
 		IApplication application = null;
 		String vhostName = server.getProperties().getPropertyStr("PublishToVHost", "_defaultVHost_"); // Old Prop Name

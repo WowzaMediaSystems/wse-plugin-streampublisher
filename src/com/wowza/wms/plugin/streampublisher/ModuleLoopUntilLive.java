@@ -187,7 +187,7 @@ public class ModuleLoopUntilLive extends ModuleBase
 		logger = WMSLoggerFactory.getLoggerObj(appInstance);
 		
 		init(appInstance);
-		logger.info(MODULE_NAME + ".onAppStart: ["+appInstance.getContextStr()+"]: Build #5", WMSLoggerIDs.CAT_application, WMSLoggerIDs.EVT_comment);
+		logger.info(MODULE_NAME + ".onAppStart: ["+appInstance.getContextStr()+"]: Build #9", WMSLoggerIDs.CAT_application, WMSLoggerIDs.EVT_comment);
 	}
 	
 	public void init(IApplicationInstance appInstance)
