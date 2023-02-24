@@ -90,13 +90,10 @@ public class ServerListenerStreamPublisher implements IServerNotify2
 					playlist.open(stream);
 					logger.info(CLASS_NAME + " Scheduled stream is now live: " + stream.getName());
 
-					if (playlistMetadata != null && playlistMetadata.size() > 0)
-					{
-						AMFDataObj amfData = new AMFDataObj();
-						for (Map.Entry<String, String> m : playlistMetadata.entrySet())
-							amfData.put(m.getKey(), m.getValue());
+					AMFDataObj amfData = new AMFDataObj();
+					playlistMetadata.forEach(amfData::put);
+					if (amfData.size() > 0)
 						stream.getPublisher().getStream().sendDirect("onMetaData", amfData);
-					}
 
 					removeFromList();
 					timer = null;
@@ -495,10 +492,9 @@ public class ServerListenerStreamPublisher implements IServerNotify2
 							if (streamName.length() == 0)
 								continue;
 
-							Map<String, String> playlistMetadata = null;
+							Map<String, String> playlistMetadata = new HashMap<>();
 							if (metadataPlaylistAttributes != null)
 							{
-								playlistMetadata = new HashMap<>();
 								for (String playlistAttribute : metadataPlaylistAttributes.split(","))
 								{
 									if (!e.hasAttribute(playlistAttribute))
