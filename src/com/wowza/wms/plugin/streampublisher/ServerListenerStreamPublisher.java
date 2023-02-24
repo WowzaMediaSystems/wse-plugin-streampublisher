@@ -532,27 +532,16 @@ public class ServerListenerStreamPublisher implements IServerNotify2
 							stream.setStartLiveOnPreviousBufferTime(startLiveOnPreviousBufferTime);
 							stream.setTimeOffsetBetweenItems(timeOffsetBetweenItems);
 							ScheduledItem schedule = new ScheduledItem(appInstance, startTime, playlist, stream);
+
+							// skip adding passed, earlier than the last one, schedules
+							if (schedule.start.before(now) && schedules.stream().anyMatch(s -> s.start.before(now)) && !schedules.removeIf(s -> s.start.before(schedule.start)))
+								continue;
 							schedules.add(schedule);
-							logger.info(CLASS_NAME + " Scheduled: " + stream.getName() + " for: " + scheduled);
 						}
 						
 					}
-					schedulesMap.replaceAll((streamName, schedules) ->
-					{
-						// future schedules
-						List<ScheduledItem> filteredSchedules = schedules.stream()
-								.sorted()
-								.filter(s -> !s.start.before(now))
-								.collect(Collectors.toList());
-						// find last passed schedule and add it at the beginning of future schedules
-						schedules.stream()
-								.sorted()
-								.filter(s -> s.start.before(now))
-								.reduce((first, second) -> second)
-								.ifPresent(s -> filteredSchedules.add(0, s));
-						return filteredSchedules;
-					});
-					schedulesMap.forEach((streamName, schedules) -> schedules.forEach(ScheduledItem::start));
+					// start all schedules
+					schedulesMap.forEach((streamName, schedules) -> schedules.stream().sorted().forEach(ScheduledItem::start));
 				}
 			}
 			catch (Exception ex)
