@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import com.wowza.wms.amf.AMFDataObj;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -54,13 +55,15 @@ public class ServerListenerStreamPublisher implements IServerNotify2
 		private Timer timer;
 		private Date start;
 		private Playlist playlist;
+		private Map<String, String> playlistMetadata;
 		private Stream stream;
 
-		public ScheduledItem(IApplicationInstance appInstance, Date start, Playlist playlist, Stream stream)
+		public ScheduledItem(IApplicationInstance appInstance, Date start, Playlist playlist, Map<String, String> playlistMetadata, Stream stream)
 		{
 			this.appInstance = appInstance;
 			this.start = start;
 			this.playlist = playlist;
+			this.playlistMetadata = playlistMetadata;
 			this.stream = stream;
 			timer = new Timer();
 		}
@@ -86,6 +89,15 @@ public class ServerListenerStreamPublisher implements IServerNotify2
 				{
 					playlist.open(stream);
 					logger.info(CLASS_NAME + " Scheduled stream is now live: " + stream.getName());
+
+					if (playlistMetadata != null && playlistMetadata.size() > 0)
+					{
+						AMFDataObj amfData = new AMFDataObj();
+						for (Map.Entry<String, String> m : playlistMetadata.entrySet())
+							amfData.put(m.getKey(), m.getValue());
+						stream.getPublisher().getStream().sendDirect("onMetaData", amfData);
+					}
+
 					removeFromList();
 					timer = null;
 				}
@@ -362,7 +374,9 @@ public class ServerListenerStreamPublisher implements IServerNotify2
 			timeOffsetBetweenItems = props.getPropertyInt(PROP_NAME_PREFIX + "TimeOffsetBetweenItems", timeOffsetBetweenItems);
 			boolean updateMetadata = serverProps.getPropertyBoolean(PROP_NAME_PREFIX + "UpdateMetadataOnNewItem", true);
 			updateMetadata = props.getPropertyBoolean(PROP_NAME_PREFIX + "UpdateMetadataOnNewItem", updateMetadata);
-			
+			String metadataPlaylistAttributes = serverProps.getPropertyStr(PROP_NAME_PREFIX + "PassPlaylistAttributesAsMetadata");
+			metadataPlaylistAttributes = props.getPropertyStr(PROP_NAME_PREFIX + "PassPlaylistAttributesAsMetadata", metadataPlaylistAttributes);
+
 			String storageDir = appInstance.getStreamStorageDir();
 			try
 			{
@@ -481,6 +495,18 @@ public class ServerListenerStreamPublisher implements IServerNotify2
 							if (streamName.length() == 0)
 								continue;
 
+							Map<String, String> playlistMetadata = null;
+							if (metadataPlaylistAttributes != null)
+							{
+								playlistMetadata = new HashMap<>();
+								for (String playlistAttribute : metadataPlaylistAttributes.split(","))
+								{
+									if (!e.hasAttribute(playlistAttribute))
+										continue;
+									playlistMetadata.put(playlistAttribute, e.getAttribute(playlistAttribute));
+								}
+							}
+
 							Playlist playlist = new Playlist(streamName);
 							playlist.setRepeat((e.getAttribute("repeat").equals("false")) ? false : true);
 
@@ -531,7 +557,7 @@ public class ServerListenerStreamPublisher implements IServerNotify2
 							stream.setStartLiveOnPreviousKeyFrame(startLiveOnPreviousKeyFrame);
 							stream.setStartLiveOnPreviousBufferTime(startLiveOnPreviousBufferTime);
 							stream.setTimeOffsetBetweenItems(timeOffsetBetweenItems);
-							ScheduledItem schedule = new ScheduledItem(appInstance, startTime, playlist, stream);
+							ScheduledItem schedule = new ScheduledItem(appInstance, startTime, playlist, playlistMetadata, stream);
 							schedules.add(schedule);
 							logger.info(CLASS_NAME + " Scheduled: " + stream.getName() + " for: " + scheduled);
 						}
